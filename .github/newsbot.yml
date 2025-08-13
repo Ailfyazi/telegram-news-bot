@@ -1,0 +1,45 @@
+name: News Bot
+
+on:
+  schedule:
+    # اجرا هر ساعت (می‌تونید تغییر بدید)
+    - cron: '0 * * * *'
+  workflow_dispatch: # اجرای دستی
+  push:
+    branches: [ main ]
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run news bot
+      env:
+        BOT_TOKEN: 8425355916:AAGc6-zek0min7lTD4qg4OHly5pdTw15cZI
+        CHANNEL_ID: '@ne77i'
+        POST_INTERVAL_HOURS: 1
+        MAX_NEWS_PER_POST: 3
+        LOG_LEVEL: INFO
+      run: |
+        python newsbot_github.py
